@@ -37,15 +37,25 @@
   .top-msg { text-align: center; transition: opacity .5s; }
   .top-msg .en { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 22px; color: var(--soft); letter-spacing: .06em; }
   .top-msg .ko { margin-top: 6px; font-size: 15px; color: var(--soft); }
-  .hint { font-size: 15px; color: var(--soft); letter-spacing: .08em; animation: pulse 1.8s ease-in-out infinite; transition: opacity .4s; }
-  .opened .top-msg, .opened .hint { opacity: 0; animation: none; }
+  .hint { display: flex; align-items: center; gap: 10px; padding: 16px 30px; border: 0; border-radius: 999px;
+    background: var(--rose); color: #fff; font: inherit; font-size: clamp(19px, 5.4vw, 23px); font-weight: 700; letter-spacing: .04em;
+    box-shadow: 0 8px 20px rgba(163,75,87,.35); cursor: pointer; animation: nudge 1.6s ease-in-out infinite; transition: opacity .4s; }
+  .hint .hand { font-size: 1.25em; display: inline-block; animation: tap 1.6s ease-in-out infinite; }
+  .hint-sub { margin-top: -14px; font-size: clamp(14px, 4vw, 16px); color: var(--soft); transition: opacity .4s; }
+  @keyframes nudge { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.06); } }
+  @keyframes tap { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+  .opened .top-msg, .opened .hint, .opened .hint-sub { opacity: 0; animation: none; }
+  #intro { cursor: pointer; }
   @keyframes pulse { 50% { opacity: .35; } }
 
   /* 봉투는 340×230 기준으로 그리고 화면 폭에 맞춰 확대/축소 */
   .env-box { width: calc(340px * var(--es, 1)); height: calc(230px * var(--es, 1)); }
   .env { position: relative; width: 340px; height: 230px; perspective: 900px; cursor: pointer;
     transform-origin: top left; transform: scale(var(--es, 1)); }
-  .env-inner { position: absolute; inset: 0; transition: transform 1s cubic-bezier(.6,0,.4,1); }
+  .env-inner { position: absolute; inset: 0; perspective: 800px; perspective-origin: 50% 0;
+    transition: transform 1s cubic-bezier(.6,0,.4,1); }
+  .env-float { position: relative; width: 100%; height: 100%; animation: float 3.2s ease-in-out infinite; }
+  .opened .env-float { animation-play-state: paused; }
   .env-back { position: absolute; inset: 0; border-radius: 6px; background: var(--kraft3);
     box-shadow: 0 18px 40px rgba(90,50,40,.25); }
   .letter { position: absolute; left: 22px; top: 14px; width: 296px; height: 200px; z-index: 2;
@@ -66,7 +76,7 @@
     backface-visibility: hidden; }
   .names { position: absolute; left: 0; right: 0; bottom: 18px; text-align: center; z-index: 5;
     font-family: 'Great Vibes', cursive; font-size: 30px; color: #fff7f3; text-shadow: 0 1px 2px rgba(120,60,50,.35); }
-  .env:not(.opened) .env-inner { animation: float 3.2s ease-in-out infinite; }
+
   @keyframes float { 0%, 100% { transform: none; } 50% { transform: translateY(-5px); } }
 
   .opened .flap { transform: rotateX(180deg); }
@@ -175,7 +185,7 @@
 <div id="intro">
   <div class="top-msg"><div class="en">a letter for you</div><div class="ko">소중한 분께 드리는 감사 인사</div></div>
   <div class="env-box">
-    <div class="env" id="env" role="button" aria-label="봉투 열기">
+    <div class="env-float"><div class="env" id="env" role="button" aria-label="봉투 열기">
       <div class="env-inner">
         <div class="env-back"></div>
         <div class="letter">Thank you</div>
@@ -198,14 +208,16 @@
             <path d="M0 0 L156 128 Q170 138 184 128 L340 0" stroke="rgba(110,60,50,.22)" stroke-width="1.4" fill="none"/>
           </svg>
           <svg class="inside" viewBox="0 0 340 140" aria-hidden="true">
-            <path d="M0 0 H340 L184 128 Q170 138 156 128Z" fill="#e6c2b9"/>
+            <path d="M0 140 H340 L184 12 Q170 2 156 12Z" fill="#e6c2b9"/>
+            <path d="M0 140 L156 12 Q170 2 184 12 L340 140" stroke="rgba(110,60,50,.18)" stroke-width="1.4" fill="none"/>
           </svg>
           <div class="seal">♥</div>
         </div>
       </div>
-    </div>
+    </div></div>
   </div>
-  <div class="hint">봉투를 눌러 열어보세요</div>
+  <button class="hint" type="button"><span class="hand">👆</span>여기를 눌러 열어보세요</button>
+  <div class="hint-sub">봉투나 화면 아무 곳이나 눌러도 열려요</div>
 </div>
 
 <main id="main">
@@ -384,7 +396,7 @@
     setTimeout(function () { main.classList.add('show'); document.body.classList.remove('locked'); }, 2500);
     setTimeout(function () { petals(18); }, 9000);
   }
-  env.addEventListener('click', open);
+  intro.addEventListener('click', open);
 
   // ?open 이면 바로 펼친 상태로 (미리보기용)
   if (/[?&]open/.test(location.search)) {
